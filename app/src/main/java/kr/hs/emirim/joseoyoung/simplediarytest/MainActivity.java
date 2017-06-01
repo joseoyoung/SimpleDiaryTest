@@ -1,14 +1,18 @@
 package kr.hs.emirim.joseoyoung.simplediarytest;
 
+import android.content.Context;
 import android.icu.util.Calendar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
@@ -23,6 +27,20 @@ public class MainActivity extends AppCompatActivity {
         date = (DatePicker)findViewById(R.id.date_pick);
         edit = (EditText) findViewById(R.id.edit);
         but = (Button)findViewById(R.id.but);
+        but.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    FileOutputStream fOut = openFileOutput(fileName, Context.MODE_PRIVATE);
+                    String str=edit.getText().toString();
+                    fOut.write(str.getBytes());
+                    fOut.close();
+                    Toast.makeText(MainActivity.this, "정상적으로 "+fileName+"파일이 저장되었습니다.", Toast.LENGTH_LONG).show();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
 
         Calendar cal=Calendar.getInstance();
         int year=cal.get(Calendar.YEAR);
@@ -41,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
     }
     public String readDiary(String fileName){
         String diaryStr=null;
-        FileInputStream fIn;
+        FileInputStream fIn = null;
         try {
             fIn=openFileInput(fileName);
             byte[] buf=new byte[500];
@@ -54,7 +72,12 @@ public class MainActivity extends AppCompatActivity {
         } catch (IOException e) {
 
         }
-
+        try {
+            fIn.close();
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+        
         return diaryStr;
     }
 }
